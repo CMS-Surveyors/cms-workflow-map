@@ -6,10 +6,12 @@
    Keep them in sync by editing ONLY this file.
    ============================================================ */
 
-const LAST_UPDATED = "26 June 2026";
+const LAST_UPDATED = "27 June 2026";
 
 /* Recent changes — newest first. Shown at the top of the training guide. */
 const CHANGES = [
+  { date:"27 Jun 2026", text:"Corrected Stage 3 to show the automations that were hiding as 'manual'. The pre-electrical design check, the Prolec electrical-design brief, the pre-procurement check and the sales-handover hub all run automatically. Each one is fired by a person moving a card into its column." },
+  { date:"27 Jun 2026", text:"The Staff Training Guide is now a pure read-only mirror of the workflow: what we do at each stage and what fires it. Tone and wording are taught separately." },
   { date:"26 Jun 2026", text:"Workflow map rebuilt: every automation card now expands to show its exact trigger, where it pulls its information from, and the verbatim message it sends." },
   { date:"26 Jun 2026", text:"Staff Training Guide is now a read-only mirror of the live workflow map, so the training view and the working map can never drift apart." },
   { date:"26 Jun 2026", text:"On the map you can now propose a brand-new automation, suggest an edit to an existing one, and ask Mack for his thoughts on the wording, then send it all over with one button." },
@@ -18,21 +20,10 @@ const CHANGES = [
   { date:"Jun 2026", text:"BookerBot transcript sweep built and dry-run verified, copying the full Lila chat into Reonic. Awaiting Cameron's go to switch live." }
 ];
 
-/* Wording and style — the rules every customer-facing message follows.
-   Shown near the top of the training guide so staff write in one voice. */
-const STYLE = [
-  { h:"Say 'CMS', not 'CMS Surveyors'", body:"In anything a customer reads, we are CMS. 'Surveyors' is the legal name, not the brand they hear." },
-  { h:"Sign off as the team", body:"Customer-facing emails close with 'Kind regards, The CMS Renewables Team'. Never sign as one person: it keeps the experience consistent whoever is covering." },
-  { h:"Plain English, explain the jargon", body:"Spell out the acronyms the first time: DNO (the grid network operator who approves the connection), MCS (the installer certification scheme), EPC (the energy rating). If a customer would have to Google it, explain it." },
-  { h:"No dashes mid-sentence", body:"Use a colon, a comma, or split the sentence. It reads cleaner and matches the brand." },
-  { h:"Light, not dark", body:"Cyan and green on white. Never a dark background. Quicksand for headings, Assistant for body." },
-  { h:"One button name is fixed", body:"The pre-consultation video button always reads exactly: 'What to expect during the remote design consultation video'. Do not reword it." },
-  { h:"Nothing goes out unchecked", body:"No customer-facing message is sent without a human (or Mack) checking it first. Draft, review, then send." }
-];
-
 /* ============ THE WORKFLOW ============ */
 const DATA = [
   { n:"STAGE 1", title:"REQUEST — the lead & sales pipeline", meta:'Reonic board: residential "New Board"',
+    intro:"From a brand-new enquiry to a booked consultation. The goal here is speed and qualification: respond fast, work the lead through the temperature ladder (Hot to Cold), and get a remote, site-visit or showroom consultation in the diary. Most of the front-door contact is automated; the chasing in the middle is still done by hand.",
     steps:[
       { name:"Hot — Brand new lead!", col:'Reonic column: "Hot - Brand new lead!"', dot:"mixed",
         autos:[
@@ -164,6 +155,7 @@ const DATA = [
     ]},
 
   { n:"STAGE 2", title:"OFFER — survey, design, quote, decision", meta:'Reonic board: residential "New Board" / offer',
+    intro:"Survey, design, quote and decision. The job is surveyed and designed, the customer gets a quote (CMS always quotes twice, never a single sit), and the team works it toward a yes. This stage is mostly hands-on today, with the email-to-Reonic logger running underneath so every message is captured.",
     steps:[
       { name:"Awaiting Tech Survey → Quoted → Requote → Pre-Sales Handover", col:"9 Reonic columns, from survey through to the won handover", dot:"manual",
         autos:[
@@ -192,18 +184,65 @@ const DATA = [
     ]},
 
   { n:"STAGE 3", title:"INSTALLATION — handover to completed", meta:'Reonic board: residential "Standard" / installation',
+    intro:"From a won sale to a completed install. The customer goes quiet to us but anxious at home, so the job is to keep things moving and keep them informed. This stage has the most behind-the-scenes automation of all: a person moving a card from one column to the next is what fires each step. The design check, the Prolec brief, the procurement check and the sales-handover hub all run automatically off those moves.",
     steps:[
-      { name:"Sales Handover", col:'Reonic column: "Sales Handover"', dot:"manual",
+      { name:"Sales Handover", col:'Reonic column: "Sales Handover"', dot:"mixed",
         autos:[
-          { nm:"Sales-handover pack", s:"manual", ch:"Mack candidate",
-            trigger:"Card enters \"Sales Handover\" (sale won, sales → ops).",
-            how:[["Today","Manual."]],
-            says:[["Candidate (high priority — P3)","An automated, branded pack on entry to this column that sets expectations for what comes next (DNO / SPEN / SSE timelines, who does what, when they'll hear from us). The anti-buyer's-remorse moment — the single biggest protector of won revenue."]],
-            meta:"",
+          { nm:"Sales-handover hub + intro email", s:"live", ch:"Mack · Email (draft for approval)",
+            trigger:"A card enters the \"Sales Handover\" column (sale won, sales hands over to operations).",
+            how:[
+              ["What fires it","The manual move into Sales Handover. Mack sweeps that column weekdays at 8am and 2pm."],
+              ["What it does","Mints a private project-hub link for the customer and prepares a ready-to-send, CMS-branded intro email from renewables@ that sets out what happens next (the DNO / SPEN / SSE timelines, who does what, when they will hear from us)."],
+              ["Human in the loop","The email is left as a DRAFT for one-tap approval. Mack never auto-sends it. Full hands-off auto-send is gated with Rees."]
+            ],
+            says:[["What it sets up","This is the anti-buyer's-remorse moment: the customer gets their project hub and a clear 'here is what comes next' the instant the sale is won. It is the single biggest protector of won revenue."]],
+            meta:"Mack scheduled task sales-handover-portal-drafts. Runs 08:00 & 14:00 Mon–Fri. Draft-only: a human approves the send.",
             note:"" }
         ]},
-      { name:"Pre-electrical → Electrical Design → Procurement", col:"5 engineering / procurement Reonic columns", dot:"manual",
-        autos:[ { nm:"Internal ops", s:"manual", ch:"Team", trigger:"Engineering & procurement work.", how:[["Today","Manual, internal. (Leon moves a job into Electrical Design so Prolec can produce the schematic.)"]], says:[["Status","No customer-facing automation here."]], meta:"", note:"" } ]},
+      { name:"Pre-electrical design check", col:'Reonic column: "Pre-electrical design check"', dot:"mixed",
+        autos:[
+          { nm:"Pre-electrical design sanity gate", s:"live", ch:"Mack · Email + Reonic note",
+            trigger:"A card sits in the \"Pre-electrical design check\" column.",
+            how:[
+              ["What it does","An automated quality gate: it vets every project in the column, then emails Leon the outcome and writes a Reonic note recording it."],
+              ["If the job is clean","It tells Leon it is good to go. Leon then manually moves the card into Electrical Design, which is what fires the Prolec brief."],
+              ["If there are issues","The email and note tell Leon exactly what to fix. He fixes them, then re-runs the check by moving the card out and back into this column."],
+              ["Boundary","It NEVER moves a card itself. Leon's manual move is the only link between this gate and the Prolec step."]
+            ],
+            says:[["Why it matters","It catches problems before a brief ever goes to Prolec, so the external designer always gets a clean, trusted job."]],
+            meta:"Mack scheduled task pre-design-check-sweep. Runs roughly half-hourly, 08:00–17:00 Mon–Fri.",
+            note:"" }
+        ]},
+      { name:"Electrical Design (Prolec)", col:'Reonic column: "Electrical Design"', dot:"mixed",
+        autos:[
+          { nm:"Prolec electrical design brief", s:"live", ch:"Mack · Email (auto-send)",
+            trigger:"A card is moved into the \"Electrical Design\" column (by Leon, once the sanity gate has passed).",
+            how:[
+              ["What fires it","The manual move into Electrical Design. Mack sweeps the column twice an hour, 08:00–17:00 Mon–Fri."],
+              ["Outbound","Auto-sends Prolec (the external electrical-design subcontractor) a clean, CMS-branded brief with the survey and system summary attached, asking for a schematic and component list. No price ever leaves the building."],
+              ["Inbound","Watches for Prolec's reply, files the returned schematic and component list into the Reonic job bag, and emails Leon that it is back and ready for procurement."],
+              ["Chasing","Chases Prolec at about 10am every working day until they reply, then escalates to Leon after three chases."],
+              ["Tracking","Logs the exact turnaround (working hours, weekends excluded) on the job card, keeps a running average, and tags the job 'Electrical Design Complete'."]
+            ],
+            says:[["What it does","Runs the whole electrical-design step end to end: brief out, design filed, Leon told, Prolec chased, turnaround measured."]],
+            meta:"Mack scheduled task prolec-sweep. The brief is auto-sent (no draft) because the sanity gate has already vetted the job. Internal BCC: Leon + Mark.",
+            note:"" }
+        ]},
+      { name:"Re-design", col:'Reonic column: "Re-design"', dot:"manual",
+        autos:[ { nm:"Re-design loop", s:"manual", ch:"Team", trigger:"A design needs reworking before it can pass procurement.", how:[["Today","Manual, internal. The design goes back round before re-entering the checks."]], says:[["Status","No dedicated automation; it re-enters the design and check loop."]], meta:"", note:"" } ]},
+      { name:"Pre Procurement Check → Procurement", col:'Reonic columns: "Pre Procurement Check" → procurement', dot:"mixed",
+        autos:[
+          { nm:"Pre-procurement QA gate", s:"live", ch:"Mack · Email + Reonic note",
+            trigger:"A job arrives in the \"Pre Procurement Check\" column (Leon hands the design over to procurement).",
+            how:[
+              ["What it does","A quality gate between Leon's design handoff and Diane's supplier quote requests: it cross-checks that the signed proposal(s), the schematic and the component / material list all agree."],
+              ["What it writes","A verdict as a pinned note in the Reonic job bag, flagging any mismatch to fix."],
+              ["Who it tells","Emails Diane a summary that doubles as her 'Leon has passed you a new job' notification."]
+            ],
+            says:[["Why it matters","It stops a job reaching suppliers with the proposal, schematic and parts list out of step with each other."]],
+            meta:"Mack scheduled task pre-procurement-check-sweep. Runs twice an hour, 08:00–17:00 Mon–Fri.",
+            note:"" }
+        ]},
       { name:"Awaiting DNO", col:'Reonic column: "Awaiting DNO"', dot:"manual",
         autos:[
           { nm:"DNO communications", s:"manual", ch:"Mack candidate",
@@ -236,7 +275,29 @@ const DATA = [
     ]},
 
   { n:"AFTERCARE", title:"AFTERCARE & CROSS-CUTTING", meta:"Runs alongside the whole journey",
+    intro:"The bits that do not sit in one column: things that run across the whole journey (the reply handler, the email logger), and the after-sale life of a customer (servicing, finance, the staff console). Some are live, some are built and switched off, and one is gated with Rees because it needs a new system wired in.",
     steps:[
+      { name:"Inbound handling (cross-cutting)", col:"Runs across the consultation stages", dot:"mixed",
+        autos:[
+          { nm:"Consultation reply handler", s:"live", ch:"Mack · Email",
+            trigger:"A customer replies to one of the consultation emails (remote #1, site visit #31 or showroom #12).",
+            how:[
+              ["What it does","Reads the customer's reply, pulls out anything useful they have sent ahead of the call (bills, plans, photos, questions), and files it onto the matching Reonic job card so the consultant has it in front of them."],
+              ["Boundary","It does not auto-reply to the customer. It captures and files; a human still answers."]
+            ],
+            says:[["What it does","Makes sure documents and answers a customer sends back before a consultation actually reach the consultant, instead of sitting in an inbox."]],
+            meta:"Mack scheduled task renewables-reply-extractor-sweep. LIVE.",
+            note:"" },
+          { nm:"Customer fault reports (Automation #32)", s:"pending", ch:"Mack",
+            trigger:"(When activated) a customer reports a fault with an installed system.",
+            how:[
+              ["Status","In test, internal only — not yet handling real customer faults."],
+              ["Intended","Capture a reported fault, log it onto the Reonic job card, and route it to the right person for triage."]
+            ],
+            says:[["Status","Built but disabled while it is being proven internally."]],
+            meta:"Mack scheduled task fault-report-sweep. DISABLED (test phase).",
+            note:"" }
+        ]},
       { name:"Service, finance & ops", col:"", dot:"mixed",
         autos:[
           { nm:"Service Booking", s:"paused", ch:"BookerBot",
