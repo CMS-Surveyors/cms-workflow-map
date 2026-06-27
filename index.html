@@ -50,6 +50,7 @@
   .stage-hd h2{margin:0;font-size:17px}
   .stage-hd .meta{margin-left:auto;font-size:12px;opacity:.85}
   .stage-body{background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;padding:8px 0}
+  .stage-intro{margin:8px 16px 4px;padding:11px 14px;background:#f1f7fa;border:1px solid #e2edf1;border-left:4px solid var(--cyan);border-radius:8px;font-size:13.5px;color:#2a3b48}
 
   /* Step row (a Reonic column / group) */
   .step{position:relative;padding:10px 16px 12px 46px;border-bottom:1px solid var(--line)}
@@ -288,6 +289,7 @@ DATA.forEach((stage,si)=>{
   const sec=document.createElement('section'); sec.className='stage';
   sec.innerHTML=`<div class="stage-hd"><span class="n">${stage.n}</span><h2>${esc(stage.title)}</h2><span class="meta">${esc(stage.meta)}</span></div>`;
   const body=document.createElement('div'); body.className='stage-body';
+  if(stage.intro){ const intro=document.createElement('div'); intro.className='stage-intro'; intro.textContent=stage.intro; body.appendChild(intro); }
   stage.steps.forEach((step,sti)=>{
     const key=si+'.'+sti;
     const ctx={ key, stageLabel: stage.n+' — '+stage.title, stepName: step.name };
